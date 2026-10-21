@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MejaMenu - Aplikasi Menu Kafe Interaktif</title>
+    <!-- Menggunakan Tailwind CSS CDN untuk styling modern dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Sembunyikan scrollbar untuk pengalaman UI seperti aplikasi mobile */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans max-w-md mx-auto relative shadow-2xl">
+
+    <!-- ========================================== -->
+    <!-- PANEL KONTROL DEMO ADMIN (Untuk Presentasi) -->
+    <!-- ========================================== -->
+    <div class="bg-indigo-950 p-3 text-xs border-b border-indigo-800/50 flex justify-between items-center text-indigo-200">
+        <span class="font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Mode Demo
+        </span>
+        <button onclick="toggleAdminPanel()" class="bg-indigo-800 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-md transition text-[11px]">
+            ⚙️ Fitur Simulasi Admin
+        </button>
+    </div>
+
+    <!-- Modal Panel Admin untuk Simulasi Stok Habis -->
+    <div id="adminPanel" class="hidden bg-slate-800/95 backdrop-blur p-4 border-b border-slate-700 text-xs">
+        <p class="font-bold text-slate-200 mb-2">Simulasi Admin Kafe (Ubah Stok Real-Time):</p>
+        <div class="grid grid-cols-2 gap-2" id="adminToggleList">
+            <!-- Diisi secara dinamis lewat JavaScript -->
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- HEADER APLIKASI (Informasi Kafe & Meja)     -->
+    <!-- ========================================== -->
+    <header class="p-4 bg-slate-900/90 sticky top-0 z-10 backdrop-blur border-b border-slate-800 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-black tracking-tight text-amber-400 flex items-center gap-1.5">
+                ☕ KopiKita <span class="text-xs bg-amber-400/10 text-amber-400 font-medium px-2 py-0.5 rounded-full border border-amber-400/20">Web-App</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Meja #04 • Terhubung
+            </p>
+        </div>
+        <div class="text-right">
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Kapasitas</span>
+            <span class="text-xs font-bold text-slate-200">4-6 Orang</span>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- KONTEN UTAMA (Pencarian, Kategori, & Menu) -->
+    <!-- ========================================== -->
+    <main class="p-4 pb-28 flex-1">
+        
+        <!-- Kotak Pencarian -->
+        <div class="mb-4">
+            <input type="text" id="searchInput" oninput="filterMenu()" placeholder="Cari makanan atau minuman..." 
+                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-amber-400 transition">
+        </div>
+
+        <!-- Filter Kategori (Horizontal Scroll) -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-1" id="categoryContainer">
+            <button onclick="setCategory('semua')" class="cat-btn bg-amber-400 text-slate-950 font-bold px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition">Semua</button>
+            <button onclick="setCategory('kopi')" class="cat-btn bg-slate-800 text-slate-300 font-medium px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition border border-slate-700">Kopi</button>
+            <button onclick="setCategory('non-kopi')" class="cat-btn bg-slate-800 text-slate-300 font-medium px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition border border-slate-700">Non-Kopi</button>
+            <button onclick="setCategory('makanan')" class="cat-btn bg-slate-800 text-slate-300 font-medium px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition border border-slate-700">Makanan</button>
+            <button onclick="setCategory('snack')" class="cat-btn bg-slate-800 text-slate-300 font-medium px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition border border-slate-700">Camilan</button>
+        </div>
+
+        <!-- Grid Daftar Menu -->
+        <div class="grid grid-cols-1 gap-4" id="menuGrid">
+            <!-- Menu item akan di-render menggunakan JavaScript -->
+        </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- BAR KERANJANG MELAYANG (Floating Cart Bar)  -->
+    <!-- ========================================== -->
+    <div id="floatingCart" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-gradient-to-t from-slate-950 via-slate-900 to-transparent z-20">
+        <button onclick="openCartModal()" class="w-full bg-amber-400 hover:bg-amber-300 active:scale-[0.99] text-slate-950 font-bold p-3.5 rounded-2xl shadow-lg shadow-amber-400/10 flex justify-between items-center transition">
+            <div class="flex items-center gap-2">
+                <span id="cartCountBadge" class="bg-slate-950 text-amber-400 text-xs px-2 py-0.5 rounded-full font-black">0</span>
+                <span class="text-sm">Keranjang Meja</span>
+            </div>
+            <span id="cartTotalHeader" class="text-sm font-black">Rp 0</span>
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL KERANJANG BERSAMA & KALKULATOR SPLIT -->
+    <!-- ========================================== -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 flex items-end justify-center">
+        <div class="bg-slate-900 w-full max-w-md rounded-t-3xl border-t border-slate-800 p-5 max-h-[85vh] flex flex-col">
+            
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                    🛒 Pesanan Meja #04
+                </h2>
+                <button onclick="closeCartModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+            </div>
+
+            <!-- Daftar Pesanan -->
+            <div class="overflow-y-auto flex-1 no-scrollbar space-y-3 mb-4" id="cartItemsList">
+                <!-- Item keranjang diisi lewat JS -->
+            </div>
+
+            <!-- Kalkulator Split Bill (Fitur Khas Anak Muda) -->
+            <div class="bg-slate-800/50 p-3 rounded-xl mb-4 border border-slate-700/50">
+                <div class="flex justify-between items-center text-xs mb-2">
+                    <span class="text-slate-400">Patungan Berapa Orang?</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updatePeople(-1)" class="w-6 h-6 rounded bg-slate-700 text-white font-bold flex items-center justify-center">-</button>
+                        <span id="peopleCount" class="font-bold text-amber-400 text-sm">2</span>
+                        <button onclick="updatePeople(1)" class="w-6 h-6 rounded bg-slate-700 text-white font-bold flex items-center justify-center">+</button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-2 border-t border-slate-700">
+                    <span class="text-slate-300">Estimasi Per Orang:</span>
+                    <span id="splitAmount" class="font-black text-amber-400">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- Rincian Total -->
+            <div class="space-y-1 text-xs text-slate-400 mb-4">
+                <div class="flex justify-between">
+                    <span>Subtotal</span>
+                    <span id="subtotalText">Rp 0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Pajak & Servis (10%)</span>
+                    <span id="taxText">Rp 0</span>
+                </div>
+                <div class="flex justify-between font-bold text-sm text-slate-100 pt-1 border-t border-slate-800">
+                    <span>Total Pembayaran</span>
+                    <span id="grandTotalText" class="text-amber-400">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- Tombol Kirim Pesanan -->
+            <button onclick="submitOrder()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3.5 rounded-xl transition">
+                Kirim Pesanan Ke Dapur
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- LOGIKA JAVASCRIPT APLIKASI                  -->
+    <!-- ========================================== -->
+    <script>
+        // Data Produk Kafe
+        const menuData = [
+            { id: 1, name: "Es Kopi Susu Aren", category: "kopi", price: 22000, desc: "Espresso, susu segar, dan gula aren asli", isAvailable: true, img: "☕" },
+            { id: 2, name: "Americano Cold", category: "kopi", price: 18000, desc: "Double shot espresso dengan es segar", isAvailable: true, img: "🥤" },
+            { id: 3, name: "Matcha Latte", category: "non-kopi", price: 24000, desc: "Matcha Jepang murni dengan susu hangat/es", isAvailable: true, img: "🍵" },
+            { id: 4, name: "Croissant Cokelat", category: "snack", price: 20000, desc: "Pastry renyah dengan isian cokelat lumer", isAvailable: false, img: "🥐" },
+            { id: 5, name: "Nasi Goreng Spesial", category: "makanan", price: 32000, desc: "Nasi goreng ayam, telur mata sapi, dan kerupuk", isAvailable: true, img: "🍳" },
+            { id: 6, name: "French Fries", category: "snack", price: 15000, desc: "Kentang goreng renyah dengan bumbu gurih", isAvailable: true, img: "🍟" }
+        ];
+
+        // State Aplikasi
+        let cart = {}; // Format: { productId: quantity }
+        let currentCategory = 'semua';
+        let splitPeople = 2;
+
+        // Render Menu ke Grid
+        function renderMenu() {
+            const grid = document.getElementById('menuGrid');
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+            grid.innerHTML = '';
+
+            const filteredMenu = menuData.filter(item => {
+                const matchCategory = currentCategory === 'semua' || item.category === currentCategory;
+                const matchSearch = item.name.toLowerCase().includes(searchKeyword);
+                return matchCategory && matchSearch;
+            });
+
+            if(filteredMenu.length === 0) {
+                grid.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Menu tidak ditemukan.</p>`;
+                return;
+            }
+
+            filteredMenu.forEach(item => {
+                const qty = cart[item.id] || 0;
+                grid.innerHTML += `
+                    <div class="bg-slate-800/60 rounded-2xl p-3.5 border border-slate-800 flex gap-3.5 items-center ${!item.isAvailable ? 'opacity-50' : ''}">
+                        <div class="w-16 h-16 bg-slate-700/50 rounded-xl flex items-center justify-center text-3xl shrink-0">
+                            ${item.img}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-semibold text-sm text-slate-100 truncate">${item.name}</h3>
+                                ${!item.isAvailable ? '<span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded font-medium shrink-0">Habis</span>' : ''}
+                            </div>
+                            <p class="text-[11px] text-slate-400 line-clamp-1 mt-0.5">${item.desc}</p>
+                            <div class="flex justify-between items-center mt-2.5">
+                                <span class="font-bold text-amber-400 text-sm">Rp ${item.price.toLocaleString()}</span>
+                                ${item.isAvailable ? `
+                                    <div class="flex items-center gap-2 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700">
+                                        <button onclick="updateCart(${item.id}, -1)" class="text-amber-400 font-bold px-1.5">-</button>
+                                        <span class="text-xs font-bold w-4 text-center">${qty}</span>
+                                        <button onclick="updateCart(${item.id}, 1)" class="text-amber-400 font-bold px-1.5">+</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Fungsi Tambah/Kurang Keranjang
+        function updateCart(id, change) {
+            cart[id] = (cart[id] || 0) + change;
+            if (cart[id] <= 0) delete cart[id];
+            renderMenu();
+            updateCartHeader();
+        }
+
+        // Update Tampilan Header Keranjang Melayang
+        function updateCartHeader() {
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            Object.keys(cart).forEach(id => {
+                const item = menuData.find(m => m.id == id);
+                totalItems += cart[id];
+                totalPrice += item.price * cart[id];
+            });
+
+            document.getElementById('cartCountBadge').innerText = totalItems;
+            document.getElementById('cartTotalHeader').innerText = `Rp ${totalPrice.toLocaleString()}`;
+        }
+
+        // Filter Berdasarkan Kategori
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = 'cat-btn bg-slate-800 text-slate-300 font-medium px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition border border-slate-700';
+            });
+            event.target.className = 'cat-btn bg-amber-400 text-slate-950 font-bold px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition';
+            renderMenu();
+        }
+
+        // Filter Berdasarkan Input Search
+        function filterMenu() {
+            renderMenu();
+        }
+
+        // Buka & Render Modal Keranjang
+        function openCartModal() {
+            const list = document.getElementById('cartItemsList');
+            list.innerHTML = '';
+            let subtotal = 0;
+
+            const cartKeys = Object.keys(cart);
+            if (cartKeys.length === 0) {
+                list.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Keranjang masih kosong.</p>`;
+            } else {
+                cartKeys.forEach(id => {
+                    const item = menuData.find(m => m.id == id);
+                    const totalItemPrice = item.price * cart[id];
+                    subtotal += totalItemPrice;
+
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center text-xs bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
+                            <div>
+                                <p class="font-semibold text-slate-200">${item.name}</p>
+                                <p class="text-slate-400">${cart[id]} x Rp ${item.price.toLocaleString()}</p>
+                            </div>
+                            <span class="font-bold text-slate-100">Rp ${totalItemPrice.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            const tax = subtotal * 0.10;
+            const grandTotal = subtotal + tax;
+
+            document.getElementById('subtotalText').innerText = `Rp ${subtotal.toLocaleString()}`;
+            document.getElementById('taxText').innerText = `Rp ${tax.toLocaleString()}`;
+            document.getElementById('grandTotalText').innerText = `Rp ${grandTotal.toLocaleString()}`;
+            
+            // Hitung Split Bill
+            const splitAmount = grandTotal > 0 ? Math.round(grandTotal / splitPeople) : 0;
+            document.getElementById('splitAmount').innerText = `Rp ${splitAmount.toLocaleString()} / orang`;
+
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        // Pengaturan Jumlah Orang Split Bill
+        function updatePeople(change) {
+            splitPeople = Math.max(1, splitPeople + change);
+            document.getElementById('peopleCount').innerText = splitPeople;
+            openCartModal(); // Re-render modal untuk kalkulasi ulang
+        }
+
+        // Simulasi Kirim Pesanan
+        function submitOrder() {
+            if (Object.keys(cart).length === 0) {
+                alert("Pilih menu terlebih dahulu!");
+                return;
+            }
+            alert("✅ Pesanan berhasil dikirim ke dapur! Silakan melakukan pembayaran via QRIS / Kasir.");
+            cart = {};
+            closeCartModal();
+            renderMenu();
+            updateCartHeader();
+        }
+
+        // Fitur Simulasi Admin (Mengubah Status Stok Real-time)
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
+            renderAdminPanel();
+        }
+
+        function renderAdminPanel() {
+            const container = document.getElementById('adminToggleList');
+            container.innerHTML = '';
+            menuData.forEach(item => {
+                container.innerHTML += `
+                    <label class="flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-700">
+                        <span class="truncate text-[11px] text-slate-300 mr-1">${item.name}</span>
+                        <input type="checkbox" ${item.isAvailable ? 'checked' : ''} onchange="toggleStock(${item.id})" class="accent-amber-400">
+                    </label>
+                `;
+            });
+        }
+
+        function toggleStock(id) {
+            const item = menuData.find(m => m.id === id);
+            if (item) {
+                item.isAvailable = !item.isAvailable;
+                renderMenu();
+            }
+        }
+
+        // Inisialisasi Aplikasi Saat Pertama Dimuat
+        renderMenu();
+        updateCartHeader();
+    </script>
+</body>
+</html>
