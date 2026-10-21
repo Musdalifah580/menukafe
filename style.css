@@ -1,0 +1,516 @@
+/* ==========================================================================
+   1. VARIABEL DESAIN (CSS VARIABLES)
+   Menyimpan warna, font, dan animasi dasar agar mudah diubah dari satu tempat.
+   ========================================================================== */
+:root {
+    --bg-dark: #0f172a;          /* Slate 900 - Warna latar utama */
+    --bg-card: #1e293b;          /* Slate 800 - Warna kartu & input */
+    --bg-card-hover: #334155;    /* Slate 700 */
+    --primary-amber: #fbbf24;    /* Amber 400 - Warna aksen utama (tombol/harga) */
+    --primary-amber-dark: #f59e0b; /* Amber 500 */
+    --text-light: #f8fafc;       /* Slate 50 - Warna teks utama */
+    --text-muted: #94a3b8;       /* Slate 400 - Warna deskripsi/subteks */
+    --border-color: #334155;     /* Slate 700 - Garis pembatas */
+    --success-green: #10b981;    /* Emerald 500 - Status online/sukses */
+    --danger-red: #ef4444;       /* Red 500 - Status habis/error */
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --transition-fast: all 0.2s ease-in-out;
+}
+
+/* ==========================================================================
+   2. RISET & PENGATURAN DASAR (RESET & BASE STYLES)
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Menjaga tampilan agar berukuran seluler (Mobile-First Viewport) */
+.app-container {
+    max-width: 430px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-dark);
+    position: relative;
+    box-shadow: var(--shadow-main);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sembunyikan scrollbar tanpa menghilangkan fungsi scroll */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* ==========================================================================
+   3. PANEL SIMULASI ADMIN (MODAL DEMO)
+   ========================================================================== */
+.admin-bar {
+    background-color: #1e1b4b;
+    padding: 10px 16px;
+    border-bottom: 1px solid #3730a3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.demo-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #c7d2fe;
+    font-weight: 600;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--success-green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.btn-admin {
+    background-color: #3730a3;
+    color: #ffffff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 11px;
+    transition: var(--transition-fast);
+}
+
+.btn-admin:hover {
+    background-color: #4338ca;
+}
+
+.admin-panel {
+    background-color: rgba(30, 41, 59, 0.95);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.admin-item {
+    background-color: var(--bg-dark);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   4. HEADER APLIKASI
+   ========================================================================== */
+.app-header {
+    padding: 16px;
+    background-color: rgba(15, 23, 42, 0.9);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--primary-amber);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge-tag {
+    font-size: 10px;
+    background-color: rgba(251, 191, 36, 0.1);
+    color: var(--primary-amber);
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.table-info {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   5. PENCARIAN & KATEGORI MENU
+   ========================================================================== */
+.main-content {
+    padding: 16px;
+    padding-bottom: 120px; /* Jarak agar tidak tertutup floating cart */
+    flex: 1;
+}
+
+.search-box {
+    width: 100%;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    color: var(--text-light);
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition-fast);
+    margin-bottom: 16px;
+}
+
+.search-box:focus {
+    border-color: var(--primary-amber);
+}
+
+.category-container {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.category-btn {
+    background-color: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.category-btn.active, .category-btn:hover {
+    background-color: var(--primary-amber);
+    color: var(--bg-dark);
+    border-color: var(--primary-amber);
+}
+
+/* ==========================================================================
+   6. KARTU ITEM MENU (MENU CARDS)
+   ========================================================================== */
+.menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.menu-card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    transition: var(--transition-fast);
+}
+
+.menu-card.sold-out {
+    opacity: 0.5;
+}
+
+.menu-icon {
+    width: 64px;
+    height: 64px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.menu-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.menu-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-sold-out {
+    font-size: 10px;
+    background-color: rgba(239, 68, 68, 0.2);
+    color: var(--danger-red);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.menu-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.menu-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.menu-price {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary-amber);
+}
+
+/* Tombol Pengatur Jumlah (Quantity Control) */
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-dark);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.btn-qty {
+    background: none;
+    border: none;
+    color: var(--primary-amber);
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.qty-number {
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 16px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   7. BAR KERANJANG MELAYANG (FLOATING CART BAR)
+   ========================================================================== */
+.floating-cart {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 16px;
+    background: linear-gradient(to top, var(--bg-dark) 80%, transparent);
+    z-index: 20;
+}
+
+.btn-cart-trigger {
+    width: 100%;
+    background-color: var(--primary-amber);
+    color: var(--bg-dark);
+    border: none;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(251, 191, 36, 0.2);
+    transition: var(--transition-fast);
+}
+
+.btn-cart-trigger:active {
+    transform: scale(0.98);
+}
+
+.cart-badge {
+    background-color: var(--bg-dark);
+    color: var(--primary-amber);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+/* ==========================================================================
+   8. MODAL KERANJANG & KALKULATOR SPLIT BILL
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 30;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--bg-card);
+    width: 100%;
+    max-width: 430px;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    padding: 20px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.cart-items-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(15, 23, 42, 0.5);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+}
+
+/* Kotak Kalkulator Split Bill */
+.split-bill-box {
+    background-color: rgba(15, 23, 42, 0.6);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    margin-bottom: 16px;
+    font-size: 12px;
+}
+
+.split-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.split-divider {
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+/* Ringkasan Total Pembayaran */
+.summary-space {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.summary-total {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-light);
+    border-top: 1px solid var(--border-color);
+    padding-top: 6px;
+    margin-top: 4px;
+}
+
+.btn-submit {
+    width: 100%;
+    background-color: var(--success-green);
+    color: var(--bg-dark);
+    border: none;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-submit:hover {
+    background-color: #34d399;
+}
+
+.hidden {
+    display: none !important;
+}
